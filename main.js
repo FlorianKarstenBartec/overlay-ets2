@@ -117,9 +117,22 @@ function toggleOverlay() {
   applyClockVisibility();
 }
 
+function createTrayIcon() {
+  const truckPath = path.join(__dirname, "renderer", "truck.png");
+  const iconPath = path.join(__dirname, "icon.png");
+  let image = nativeImage.createFromPath(iconPath);
+  if (image.isEmpty()) {
+    image = nativeImage.createFromPath(truckPath);
+  }
+  if (image.isEmpty()) {
+    return nativeImage.createEmpty();
+  }
+  // Windows-Tray: kleines Quadrat, LKW bleibt erkennbar
+  return image.resize({ width: 16, height: 16, quality: "best" });
+}
+
 function createTray() {
-  const icon = nativeImage.createFromPath(path.join(__dirname, "icon.png"));
-  tray = new Tray(icon.isEmpty() ? nativeImage.createEmpty() : icon);
+  tray = new Tray(createTrayIcon());
   tray.setToolTip("ETS2 Tour HUD");
   tray.setContextMenu(
     Menu.buildFromTemplate([
@@ -128,6 +141,7 @@ function createTray() {
       { label: "Beenden", click: () => app.quit() },
     ])
   );
+  tray.on("click", toggleOverlay);
 }
 
 async function fetchTelemetryJson(url) {

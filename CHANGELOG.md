@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.0
+
+- Tray uses the progress-bar truck icon
+- Left-click tray toggles the overlay
+- German README with screenshots
+
 ## 1.0.0
 
 First tagged release.

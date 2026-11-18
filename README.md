@@ -1,54 +1,70 @@
 # Overlay ETS2
 
-A small always-on-top tour HUD for Euro Truck Simulator 2 and TruckersMP.
+Kleines Always-on-top Overlay für Euro Truck Simulator 2 und TruckersMP.
 
-It reads the same local FPH telemetry feed that SpedV uses (`127.0.0.1:25552`). No game mods. No cloud account.
+Es liest denselben lokalen FPH-Telemetry-Feed wie SpedV unter `127.0.0.1:25552`. Kein Cabin-Mod. Kein Online-Konto.
 
-<!-- After you add PNGs under docs/screenshots/, uncomment:
-![Tour HUD](docs/screenshots/tour-hud.png)
-![Clock](docs/screenshots/clock.png)
-![In game](docs/screenshots/ingame.png)
--->
+![Overlay im Spiel](docs/screenshots/ingame.png)
 
-## What you see
+Oben links sitzt die Tour-Anzeige. Unten rechts bleibt der normale ETS2-Route-Advisor. So hast du Ziel, Rest und Ankunft dauerhaft im Blick, ohne Menüs zu öffnen.
 
-| Piece | Meaning |
+## Tour-HUD
+
+![Tour-HUD](docs/screenshots/tour-hud.png)
+
+| Bereich | Inhalt |
 | --- | --- |
-| Tour line | Destination, cargo, weight in tonnes |
-| Company | Delivery company with a factory marker |
-| Flags | Start and destination country under the progress bar |
-| Rest | Remaining km from the in-game navigation |
-| Dauer | Real-world time left on your PC clock |
-| Ankunft | Wall-clock arrival time |
-| Tempomat | Cruise set speed (grey off, green on) |
-| Progress | Driven / total navigation km with truck marker |
-| Clock | Separate small real-time clock |
+| Tour-Zeile | Zielstadt, Ladung, Gewicht in Tonnen |
+| Firma | Empfängerfirma |
+| Rest | Verbleibende km laut Ingame-Navigation |
+| Dauer | Geschätzte Realzeit bis zum Ziel (PC-Uhr) |
+| Ankunft | Voraussichtliche Wanduhrzeit |
+| Tempomat | Gesetzte Geschwindigkeit, grau aus, grün an |
+| Balken | Gefahren / Gesamt-Navi-km mit LKW-Marker |
+| Flaggen | Start- und Zielland unter dem Balken |
 
-## How duration works
+`F9` blendet das Tour-HUD ein und aus. Im Infobereich sitzt ein LKW-Tray-Icon. Links-Klick schaltet das Overlay, Rechts-Klick öffnet das Menü mit Beenden.
 
-The game time scale is ignored.
+## Uhr
+
+![Uhr](docs/screenshots/clock.png)
+
+Kleine Realzeit-Uhr oben rechts. Sie bleibt sichtbar, solange das Spiel verbunden ist. Die Tour-Anzeige kann dagegen bei Pause ohne Auftrag ausblenden.
+
+## Dauer und Ankunft
+
+Die Ingame-Zeitskala fließt nicht in die Rechnung ein.
 
 ```
-duration = drive_rest_km / (game_km per real hour)
+Dauer = Rest-km / (Spiel-km pro Realzeit-Stunde)
 ```
 
-- Baseline is about 1000 game km per 60 real minutes.
-- Short city or highway bursts do not rewrite the whole estimate.
-- After enough distance and time on the job, a trip average blends in slowly (capped).
-- While you stand still, duration stays put and arrival slides later.
+Ausgangswert sind etwa 1000 Spiel-km in 60 Realminuten. Kurze Stadt- oder Autobahn-Stücke reißen die Schätzung nicht um. Nach genug Strecke und Zeit auf dem Auftrag mischt sich ein Tour-Schnitt langsam ein.
 
-If the first stable navigation reading is clearly longer than the job plan (ferry), that extra is locked once and subtracted from duration and arrival. The progress bar keeps the full navigation length. Later detours and wrong turns follow the live navigation number. They are not treated as a new ferry.
+Stehst du, bleibt die Dauer stehen. Die Ankunftszeit wandert nach hinten.
 
-## Requirements
+### Fähre
+
+Ist die erste stabile Navi-Strecke klar länger als die geplante Job-km, wird die Differenz einmal als Fähre gelockt. Dauer und Ankunft rechnen ohne diesen Anteil. Der Fortschrittsbalken behält die volle Navi-Länge.
+
+Spätere Umwege, falsch Abbiegen oder entfernte Wegpunkte folgen dem aktuellen Navi. Sie gelten nicht als neue Fähre.
+
+### Balken
+
+- Gesamt kommt aus der Navi-Strecke und wird pro Auftrag gespeichert. Ein Neustart des Overlays behält `gefahren / gesamt`.
+- Wird die Route länger, wächst das Total. Nimmst du einen Marker wieder weg, ohne dich zu bewegen, schrumpft das Total zurück.
+- Die Zahl unter **Rest** ist dieselbe Reststrecke wie am Balken (`gesamt − gefahren`).
+
+## Voraussetzungen
 
 - Windows
-- Node.js 18+
-- FPH Telemetry (bundled with FPH SpedV) answering on `http://127.0.0.1:25552/api/ets2/telemetry`
-- Euro Truck Simulator 2 (TruckersMP works the same way)
+- Node.js 18 oder neuer
+- FPH Telemetry (kommt mit FPH SpedV) und Antwort auf `http://127.0.0.1:25552/api/ets2/telemetry`
+- Euro Truck Simulator 2 (TruckersMP funktioniert genauso)
 
-Any local server that returns the same JSON shape works if you set `ETS2_TELEMETRY_URL`.
+Andere lokale Server mit demselben JSON-Format gehen über `ETS2_TELEMETRY_URL`.
 
-## Install and run
+## Installation und Start
 
 ```bash
 git clone https://github.com/FlorianKarstenBartec/overlay-ets2.git
@@ -57,58 +73,43 @@ npm install
 npm start
 ```
 
-Or double-click `start.bat` after `npm install`.
+Nach `npm install` reicht auch ein Doppelklick auf `start.bat`.
 
-## Controls
+## Bedienung
 
-| Input | Action |
+| Eingabe | Aktion |
 | --- | --- |
-| F9 | Show or hide the tour HUD |
-| Tray icon | Quit |
+| F9 | Tour-HUD ein oder aus |
+| Tray links | Tour-HUD ein oder aus |
+| Tray rechts | Menü, Beenden |
 
-The tour HUD hides when the game is paused without a job, and when telemetry is disconnected. The clock stays available while the game is present.
+Das Tour-HUD blendet aus, wenn das Spiel pausiert ist und kein Auftrag läuft, und wenn keine Telemetry kommt. Die Uhr bleibt bei verbundenem Spiel.
 
-## Config
+## Konfiguration
 
-| Environment variable | Default | Role |
+| Umgebungsvariable | Standard | Bedeutung |
 | --- | --- | --- |
-| `ETS2_TELEMETRY_URL` | `http://127.0.0.1:25552/api/ets2/telemetry` | Telemetry endpoint |
-| `ETS2_POLL_MS` | `150` | Poll interval in ms |
-| `ETS2_SEED_SPEED` | `95` | Seed speed for the throughput model |
+| `ETS2_TELEMETRY_URL` | `http://127.0.0.1:25552/api/ets2/telemetry` | Telemetry-URL |
+| `ETS2_POLL_MS` | `150` | Abfrageintervall in ms |
+| `ETS2_SEED_SPEED` | `95` | Startwert für den Durchsatz |
 
-## Project layout
+## Projektstruktur
 
 ```
-main.js              Electron windows, tray, F9, IPC
-preload.js           Bridge into the renderer
+main.js              Fenster, Tray, F9, IPC
+preload.js           Bridge in den Renderer
 renderer/
-  app.js             HUD state, progress bar, arrival banner
-  telemetry.js       FPH JSON mapping
-  eta.js             Real-time duration / arrival
-  ferry.js           Ferry lock + rest used for ETA
-  routeStore.js      localStorage for progress across restarts
-  cities.js          City id / name to ISO country for flags
-  index.html         Tour HUD
-  clock.html         Small clock window
-docs/screenshots/    README images
+  app.js             HUD-Zustand, Balken, Ankunftsbanner
+  telemetry.js       Mapping vom FPH-JSON
+  eta.js             Dauer und Ankunft in Realzeit
+  ferry.js           Fähren-Lock und ETA-Rest
+  routeStore.js      localStorage für Fortschritt über Neustarts
+  cities.js          Stadt zu ISO-Land für Flaggen
+  index.html         Tour-HUD
+  clock.html         Uhr
+docs/screenshots/    Bilder für diese README
 ```
 
-## Progress bar notes
+## Lizenz
 
-- Totals come from navigation distance and are saved per job, so an overlay restart keeps `driven / total`.
-- A longer route (waypoint or wrong turn) grows the total. Removing a waypoint without moving shrinks the total again so fake “driven” km do not stick.
-- Rest in the HUD uses the same remaining km as the bar (`total - driven`).
-
-## Screenshots
-
-Add PNGs here:
-
-| File | Content |
-| --- | --- |
-| `docs/screenshots/tour-hud.png` | Active tour HUD |
-| `docs/screenshots/clock.png` | Clock window |
-| `docs/screenshots/ingame.png` | Overlay on top of the game |
-
-## License
-
-MIT. See [LICENSE](LICENSE).
+MIT. Siehe [LICENSE](LICENSE).
