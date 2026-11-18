@@ -2,7 +2,7 @@
 
 Kleines Always-on-top Overlay für Euro Truck Simulator 2 und TruckersMP.
 
-Es liest denselben lokalen FPH-Telemetry-Feed wie SpedV unter `127.0.0.1:25552`. Kein Cabin-Mod. Kein Online-Konto.
+Es liest denselben lokalen FPH-Telemetry-Feed wie SpedV unter `127.0.0.1:25552`.
 
 ![Overlay im Spiel](docs/screenshots/ingame.png)
 
@@ -17,10 +17,10 @@ Oben links sitzt die Tour-Anzeige. Unten rechts bleibt der normale ETS2-Route-Ad
 | Tour-Zeile | Zielstadt, Ladung, Gewicht in Tonnen |
 | Firma | Empfängerfirma |
 | Rest | Verbleibende km laut Ingame-Navigation |
-| Dauer | Geschätzte Realzeit bis zum Ziel (PC-Uhr) |
-| Ankunft | Voraussichtliche Wanduhrzeit |
+| Dauer | Geschätzte Realzeit bis zum Ziel |
+| Ankunft | Voraussichtliche Ankunftszeit |
 | Tempomat | Gesetzte Geschwindigkeit, grau aus, grün an |
-| Balken | Gefahren / Gesamt-Navi-km mit LKW-Marker |
+| Balken | Gefahren / Gesamt-Navi-km |
 | Flaggen | Start- und Zielland unter dem Balken |
 
 `F9` blendet das Tour-HUD ein und aus. Im Infobereich sitzt ein LKW-Tray-Icon. Links-Klick schaltet das Overlay, Rechts-Klick öffnet das Menü mit Beenden.
