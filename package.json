@@ -9,12 +9,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PLACEHOLDER/overlay-ets2.git"
+    "url": "git+https://github.com/FlorianKarstenBartec/overlay-ets2.git"
   },
   "bugs": {
-    "url": "https://github.com/PLACEHOLDER/overlay-ets2/issues"
+    "url": "https://github.com/FlorianKarstenBartec/overlay-ets2/issues"
   },
-  "homepage": "https://github.com/PLACEHOLDER/overlay-ets2#readme",
+  "homepage": "https://github.com/FlorianKarstenBartec/overlay-ets2#readme",
   "keywords": ["ets2", "truckersmp", "overlay", "telemetry", "electron"],
   "author": "",
   "license": "MIT",

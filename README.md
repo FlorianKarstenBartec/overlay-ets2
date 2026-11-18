@@ -51,7 +51,7 @@ Any local server that returns the same JSON shape works if you set `ETS2_TELEMET
 ## Install and run
 
 ```bash
-git clone https://github.com/<you>/overlay-ets2.git
+git clone https://github.com/FlorianKarstenBartec/overlay-ets2.git
 cd overlay-ets2
 npm install
 npm start
