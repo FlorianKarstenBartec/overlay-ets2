@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+
+- Progress truck snaps to the right edge at the end of the bar
+
 ## 1.1.0
 
 - Tray uses the progress-bar truck icon

@@ -293,10 +293,12 @@ function renderProgress(mapped, navRestKm) {
 
   els.progress.classList.remove("progress--empty");
   els.progressKm.textContent = `${Math.round(done)} / ${Math.round(total)} km`;
-  els.progressFill.style.width = `${pct}%`;
+  // Nahe 100%: ohne Smooth-Lag an den rechten Rand
+  const showPct = targetPct >= 99.5 ? 100 : pct;
+  els.progressFill.style.width = `${showPct}%`;
   // Gleiche Quelle wie Balken-Rest (total - done == Navi)
   els.rest.textContent = formatRestKm(restKm);
-  positionTruck(pct);
+  positionTruck(showPct);
   setFlag(els.flagStart, mapped.sourceCountryIso);
   setFlag(els.flagEnd, mapped.destCountryIso);
 }
@@ -307,16 +309,21 @@ function positionTruck(pct) {
   const truckW = Math.max(
     els.progressTruck.getBoundingClientRect().width || 0,
     els.progressTruck.offsetWidth || 0,
-    42
+    34
   );
-  const halfPx = truckW / 2;
-  // Eine Formel ohne Start/Mid/End-Klassen — sonst springt der Truck an den Grenzen
-  const centerPx = Math.max(halfPx, Math.min(trackW - halfPx, (pct / 100) * trackW));
-  const leftPct = ((centerPx - halfPx) / trackW) * 100;
+  const halfPct = (truckW / 2 / trackW) * 100;
 
-  els.progressTruck.classList.remove("is-start", "is-mid", "is-end");
-  els.progressTruck.style.left = `${leftPct}%`;
-  els.progressTruck.style.transform = "translate(0, -50%)";
+  if (pct >= 100 - halfPct) {
+    // Rechte Kante exakt am Balkenende
+    els.progressTruck.style.left = "100%";
+    els.progressTruck.style.transform = "translate(-100%, -50%)";
+  } else if (pct <= halfPct) {
+    els.progressTruck.style.left = "0%";
+    els.progressTruck.style.transform = "translate(0, -50%)";
+  } else {
+    els.progressTruck.style.left = `${pct}%`;
+    els.progressTruck.style.transform = "translate(-50%, -50%)";
+  }
 }
 
 function setOffline() {
