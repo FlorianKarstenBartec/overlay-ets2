@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ETS2 Tour HUD</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;650&family=JetBrains+Mono:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="hud" class="hud hud--offline" aria-live="polite">
+      <header class="hud__head">
+        <span class="hud__mark">TOUR</span>
+      </header>
+
+      <div id="activeBlock" class="hud__active">
+        <div class="hud__tour-block">
+          <p id="tour" class="hud__tour">Warte auf Job…</p>
+          <p id="company" class="hud__company"></p>
+        </div>
+        <dl class="hud__grid">
+          <div>
+            <dt>Rest</dt>
+            <dd><span id="rest">--</span><span class="unit"> km</span></dd>
+          </div>
+          <div>
+            <dt>Dauer</dt>
+            <dd id="dauer">--:--</dd>
+          </div>
+          <div>
+            <dt>Ankunft</dt>
+            <dd id="eta">--:--</dd>
+          </div>
+        </dl>
+      </div>
+
+      <p id="idleTitle" class="hud__idle" hidden>Kein aktiver Auftrag</p>
+
+      <div id="cruise" class="cruise cruise--none" title="Tempomat">
+        <svg class="cruise__icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M12 3a9 9 0 0 0-9 9h2a7 7 0 0 1 14 0h2a9 9 0 0 0-9-9zm0 4a5 5 0 0 0-5 5h2a3 3 0 0 1 6 0h2a5 5 0 0 0-5-5zm-.75 5.5 4.8 2.8-.9 1.5-5.4-3.2V8h1.5v4.5z"
+            fill="currentColor"
+          />
+        </svg>
+        <span id="cruiseValue" class="cruise__value">-</span>
+      </div>
+
+      <div id="progress" class="progress" aria-label="Tourfortschritt">
+        <div class="progress__meta">
+          <span id="progressKm">0 / -- km</span>
+        </div>
+        <div class="progress__track">
+          <div id="progressFill" class="progress__fill"></div>
+          <div id="progressTruck" class="progress__truck" style="left: 0%">
+            <img src="truck.png" alt="" width="40" height="22" />
+          </div>
+        </div>
+        <div class="progress__flags">
+          <img id="flagStart" class="progress__flag" alt="" width="20" height="15" hidden />
+          <img id="flagEnd" class="progress__flag" alt="" width="20" height="15" hidden />
+        </div>
+      </div>
+
+      <footer class="hud__foot">
+        <span id="hint">F9 ein/aus</span>
+      </footer>
+
+      <div id="arrival" class="arrival" hidden>
+        <div class="arrival__burst" aria-hidden="true"></div>
+        <p class="arrival__eyebrow">Tour</p>
+        <p class="arrival__title">Ziel erreicht</p>
+        <p id="arrivalDest" class="arrival__dest"></p>
+      </div>
+    </div>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

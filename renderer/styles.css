@@ -1,0 +1,389 @@
+:root {
+  --ink: #d8d2c4;
+  --muted: #8a8478;
+  --line: rgba(216, 210, 196, 0.18);
+  --panel: rgba(18, 20, 18, 0.82);
+  --accent: #c9a227;
+  --warn: #c45c2a;
+  --ok: #7a9a62;
+  --font-ui: "Archivo Narrow", "Arial Narrow", sans-serif;
+  --font-num: "JetBrains Mono", "Consolas", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent;
+  font-family: var(--font-ui);
+  color: var(--ink);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.hud {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 12px 14px 10px;
+  background:
+    linear-gradient(180deg, rgba(32, 34, 30, 0.92), var(--panel)),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.04) 2px,
+      rgba(0, 0, 0, 0.04) 3px
+    );
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.hud--offline {
+  opacity: 0.88;
+}
+
+.hud__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.hud__mark {
+  color: var(--accent);
+  font-weight: 650;
+}
+
+.hud__tour-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+  margin-bottom: 10px;
+}
+
+.hud__tour {
+  font-family: var(--font-ui);
+  font-size: 18px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud__company {
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.15;
+  letter-spacing: 0.01em;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.hud__idle {
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+
+.hud--idle .hud__active,
+.hud--idle .progress {
+  display: none;
+}
+
+.hud--idle {
+  gap: 10px;
+  padding: 12px 14px 10px;
+}
+
+.hud--idle .cruise {
+  border-top: 0;
+  padding-top: 2px;
+}
+
+.hud--idle .hud__foot {
+  margin-top: auto;
+}
+
+.hud__grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr 0.9fr;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.hud__grid dt {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.hud__grid dd {
+  font-family: var(--font-num);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.hud__grid .unit {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  margin-left: 2px;
+}
+
+.hud__foot {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-num);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.cruise {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 7px;
+  color: var(--muted);
+}
+
+.cruise__icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.cruise__value {
+  font-family: var(--font-num);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.cruise--none {
+  color: var(--muted);
+  opacity: 0.75;
+}
+
+.cruise--off {
+  color: #6e6a62;
+}
+
+.cruise--on {
+  color: #6faf5a;
+}
+
+.progress {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.progress__meta {
+  display: flex;
+  justify-content: flex-end;
+  font-family: var(--font-num);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+.progress__flags {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding: 0;
+}
+
+.progress__flag {
+  flex: 0 0 auto;
+  width: 20px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 1px;
+}
+
+.progress__track {
+  position: relative;
+  height: 8px;
+  margin: 16px 0 0;
+  background: #3a3832;
+  border-radius: 999px;
+  overflow: visible;
+}
+
+.progress__fill {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.25s ease-out;
+}
+
+.progress__truck {
+  position: absolute;
+  top: 50%;
+  left: 0%;
+  width: 34px;
+  height: 20px;
+  transform: translate(0, -50%);
+  transition: left 0.2s linear;
+  pointer-events: none;
+  z-index: 2;
+  line-height: 0;
+}
+
+.progress__truck img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  /* Accent-Farbe + schwarzer Rand für Kontrast */
+  filter:
+    brightness(0) saturate(100%) invert(72%) sepia(48%) saturate(700%) hue-rotate(8deg) brightness(0.95)
+    drop-shadow(0 0 0.6px #000)
+    drop-shadow(0.7px 0 0 #000)
+    drop-shadow(-0.7px 0 0 #000)
+    drop-shadow(0 0.7px 0 #000)
+    drop-shadow(0 -0.7px 0 #000);
+}
+
+.progress--empty .progress__fill {
+  width: 0%;
+}
+
+.arrival {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 16px;
+  background: rgba(14, 15, 13, 0.92);
+  border-left: 3px solid var(--accent);
+  z-index: 5;
+  animation: arrival-in 0.55s ease-out both;
+}
+
+.arrival[hidden] {
+  display: none;
+}
+
+.arrival__eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  animation: arrival-rise 0.5s 0.08s ease-out both;
+}
+
+.arrival__title {
+  font-size: 28px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  animation: arrival-rise 0.55s 0.14s ease-out both;
+}
+
+.arrival__dest {
+  font-family: var(--font-num);
+  font-size: 12px;
+  color: var(--ink);
+  opacity: 0.85;
+  animation: arrival-rise 0.55s 0.22s ease-out both;
+}
+
+.arrival__burst {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(201, 162, 39, 0.28) 0%, transparent 68%);
+  animation: arrival-burst 0.9s ease-out both;
+  pointer-events: none;
+}
+
+.hud--arrived .progress__fill {
+  width: 100% !important;
+}
+
+.hud--arrived .progress__truck {
+  left: 100% !important;
+  animation: truck-pop 0.45s 0.1s ease-out both;
+}
+
+@keyframes arrival-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes arrival-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes arrival-burst {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.35);
+    opacity: 0.35;
+  }
+}
+
+@keyframes truck-pop {
+  0% {
+    transform: translate(-100%, -50%) scale(1);
+  }
+  45% {
+    transform: translate(-100%, -62%) scale(1.18);
+  }
+  100% {
+    transform: translate(-100%, -50%) scale(1);
+  }
+}

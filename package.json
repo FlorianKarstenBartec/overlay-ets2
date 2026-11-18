@@ -1,0 +1,25 @@
+{
+  "name": "overlay-ets2",
+  "version": "1.0.0",
+  "description": "Always-on-top ETS2/TMP tour HUD using local FPH telemetry",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PLACEHOLDER/overlay-ets2.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PLACEHOLDER/overlay-ets2/issues"
+  },
+  "homepage": "https://github.com/PLACEHOLDER/overlay-ets2#readme",
+  "keywords": ["ets2", "truckersmp", "overlay", "telemetry", "electron"],
+  "author": "",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^39.2.0"
+  }
+}
