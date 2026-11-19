@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Einstellungen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;650&family=JetBrains+Mono:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="settings.css" />
+  </head>
+  <body>
+    <main class="panel">
+      <h1>Einstellungen</h1>
+      <p class="lead">Durchschnittliche Geschwindigkeit für Dauer und Ankunft.</p>
+
+      <label class="field" for="seedSpeed">
+        <span>Durchschnitt (km/h)</span>
+        <input id="seedSpeed" type="number" min="40" max="130" step="1" value="90" />
+      </label>
+
+      <label class="check" id="autoStartRow">
+        <input id="openAtLogin" type="checkbox" />
+        <span>Mit Windows starten</span>
+      </label>
+      <p id="autoStartHint" class="hint" hidden>
+        Auto-Start steht erst nach Installation der Setup.exe zur Verfügung.
+      </p>
+
+      <p id="error" class="error" hidden></p>
+
+      <div class="actions">
+        <button id="cancel" type="button" class="btn btn--ghost">Abbrechen</button>
+        <button id="save" type="button" class="btn">Speichern</button>
+      </div>
+    </main>
+    <script type="module" src="settings.js"></script>
+  </body>
+</html>

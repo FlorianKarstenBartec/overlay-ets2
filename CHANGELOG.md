@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.3.0
+
+- Windows NSIS installer (Setup.exe) – no Node.js needed for players
+- Average km/h setting on first launch and via tray → Einstellungen
+- Tray checkbox to start with Windows (installed build only)
+- Tour HUD shows a short hint when ETS2 is running but FPH telemetry is missing
+
 ## 1.2.0
 
 - Progress truck snaps to the right edge at the end of the bar

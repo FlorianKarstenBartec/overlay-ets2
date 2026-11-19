@@ -8,6 +8,9 @@ const els = {
   hud: document.getElementById("hud"),
   activeBlock: document.getElementById("activeBlock"),
   idleTitle: document.getElementById("idleTitle"),
+  statusBlock: document.getElementById("statusBlock"),
+  statusTitle: document.getElementById("statusTitle"),
+  statusDetail: document.getElementById("statusDetail"),
   tour: document.getElementById("tour"),
   company: document.getElementById("company"),
   rest: document.getElementById("rest"),
@@ -29,10 +32,10 @@ const els = {
 let config = {
   telemetryUrl: "http://127.0.0.1:25552/api/ets2/telemetry",
   pollMs: 150,
-  seedSpeedKmh: 95,
+  seedSpeedKmh: 90,
 };
 
-let etaEngine = createEtaEngine(95);
+let etaEngine = createEtaEngine(90);
 let driveTracker = createDriveTracker();
 let lastCruiseKmh = null;
 let progressJobKey = null;
@@ -99,17 +102,30 @@ function setTourHtml(mapped) {
     : "";
 }
 
-function setIdleMode(idle) {
-  els.hud.classList.toggle("hud--idle", idle);
-  els.idleTitle.hidden = !idle;
-  els.activeBlock.hidden = idle;
-  els.progress.hidden = idle;
+function setHudLayout(mode) {
+  const nextMode = mode === "idle" || mode === "hint" ? mode : "active";
+  els.hud.classList.toggle("hud--idle", nextMode === "idle");
+  els.hud.classList.toggle("hud--hint", nextMode === "hint");
+  els.idleTitle.hidden = nextMode !== "idle";
+  els.statusBlock.hidden = nextMode !== "hint";
+  els.activeBlock.hidden = nextMode !== "active";
+  els.progress.hidden = nextMode !== "active";
 
-  const nextMode = idle ? "idle" : "active";
   if (nextMode !== hudMode) {
     hudMode = nextMode;
     window.hudBridge?.setHudMode?.(nextMode);
   }
+}
+
+function setIdleMode(idle) {
+  setHudLayout(idle ? "idle" : "active");
+}
+
+function applySeedSpeed(seedSpeedKmh) {
+  const next = Number(seedSpeedKmh);
+  if (!Number.isFinite(next) || next === config.seedSpeedKmh) return;
+  config.seedSpeedKmh = next;
+  etaEngine = createEtaEngine(next);
 }
 
 function hideArrivalBanner() {
@@ -328,10 +344,31 @@ function positionTruck(pct) {
 
 function setOffline() {
   els.hud.classList.add("hud--offline");
-  els.hud.classList.remove("hud--ok", "hud--arrived", "hud--idle");
+  els.hud.classList.remove("hud--ok", "hud--arrived", "hud--idle", "hud--hint");
+  els.statusBlock.hidden = true;
+  els.idleTitle.hidden = true;
   resetProgress();
   hideArrivalBanner();
+  setTourAutoVisible(true);
   setGamePresent(false);
+}
+
+async function setTelemetryMissing() {
+  const gameRunning = Boolean(await window.hudBridge?.isGameRunning?.());
+  if (!gameRunning) {
+    setOffline();
+    return;
+  }
+
+  els.hud.classList.add("hud--ok");
+  els.hud.classList.remove("hud--offline", "hud--arrived");
+  els.statusTitle.textContent = "Keine Telemetry";
+  els.statusDetail.textContent = "FPH/SpedV starten";
+  resetProgress();
+  hideArrivalBanner();
+  setHudLayout("hint");
+  setTourAutoVisible(true);
+  setGamePresent(true);
 }
 
 function renderCruise(mapped) {
@@ -357,15 +394,16 @@ function renderCruise(mapped) {
   els.cruiseValue.textContent = "-";
 }
 
-function render(mapped, eta, route = {}) {
+async function render(mapped, eta, route = {}) {
   if (!mapped.connected) {
-    setOffline();
+    await setTelemetryMissing();
     return;
   }
 
   setGamePresent(true);
-  els.hud.classList.remove("hud--offline");
+  els.hud.classList.remove("hud--offline", "hud--hint");
   els.hud.classList.add("hud--ok");
+  els.statusBlock.hidden = true;
 
   if (!eta.hasJob) {
     setIdleMode(true);
@@ -409,9 +447,9 @@ async function tick() {
       ...mapped,
       restKm: route.etaRestKm ?? route.navRestKm,
     });
-    render(mapped, eta, route);
+    await render(mapped, eta, route);
   } catch {
-    setOffline();
+    await setTelemetryMissing();
   }
 }
 
@@ -419,9 +457,12 @@ async function boot() {
   if (window.hudBridge?.getConfig) {
     config = { ...config, ...(await window.hudBridge.getConfig()) };
   }
-  etaEngine = createEtaEngine(config.seedSpeedKmh || 95);
+  etaEngine = createEtaEngine(config.seedSpeedKmh || 90);
   driveTracker = createDriveTracker();
   els.hint.textContent = "F9 ein/aus";
+  window.hudBridge?.onSettingsUpdated?.((next) => {
+    applySeedSpeed(next.seedSpeedKmh);
+  });
   await tick();
   setInterval(tick, config.pollMs);
 }

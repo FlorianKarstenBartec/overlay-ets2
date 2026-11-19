@@ -2,7 +2,7 @@
  * ETA über Realzeit-Durchsatz:
  *   Restdauer = Fahr-Rest-km / (Spiel-km pro Realzeit-Stunde)
  *
- * Basis fest: ~1000 Spiel-km ≈ 60 Real-Minuten.
+ * Basis = eingestellte Durchschnitts-km/h (Settings).
  * Momentane Stadt-/Autobahn-Geschwindigkeit darf die ETA nicht hart umwerfen —
  * Tour-Durchschnitt wird erst nach längerer Strecke langsam eingemischt.
  *
@@ -15,11 +15,16 @@ const MAX_BLEND = 0.35;
 const MAX_REMAIN_STEP_SEC = 2.5;
 const MIN_TRIP_KM = 40;
 const MIN_TRIP_SEC = 8 * 60;
+const DEFAULT_SEED_KMH = 90;
 
-// 1000 km / 60 min Realzeit
-const CAL_KM_PER_REAL_HOUR = 1000;
+function clampSeed(seedSpeedKmh) {
+  const n = Number(seedSpeedKmh);
+  if (!Number.isFinite(n) || n <= 0) return DEFAULT_SEED_KMH;
+  return Math.min(130, Math.max(40, n));
+}
 
-export function createEtaEngine(_seedSpeedKmh = 95) {
+export function createEtaEngine(seedSpeedKmh = DEFAULT_SEED_KMH) {
+  const baseKmPerRealHour = clampSeed(seedSpeedKmh);
   let tripKm = 0;
   let tripSec = 0;
   let lastOdometer = null;
@@ -49,7 +54,7 @@ export function createEtaEngine(_seedSpeedKmh = 95) {
         restKm: null,
         remainSec: null,
         etaMs: null,
-        kmPerRealHour: CAL_KM_PER_REAL_HOUR,
+        kmPerRealHour: baseKmPerRealHour,
         stopped: true,
       };
     }
@@ -74,8 +79,7 @@ export function createEtaEngine(_seedSpeedKmh = 95) {
     }
     lastTickMs = nowMs;
 
-    // Immer Kalibrier-Basis — kein Sofort-Umschalten auf 60/95 km/h
-    let kmPerRealHour = CAL_KM_PER_REAL_HOUR;
+    let kmPerRealHour = baseKmPerRealHour;
 
     const measured =
       tripSec >= MIN_TRIP_SEC && tripKm >= MIN_TRIP_KM
@@ -84,10 +88,10 @@ export function createEtaEngine(_seedSpeedKmh = 95) {
 
     if (measured != null) {
       const blend = Math.min(MAX_BLEND, 1 - Math.pow(0.5, tripKm / HALF_LIFE_KM));
-      const lo = CAL_KM_PER_REAL_HOUR * 0.75;
-      const hi = CAL_KM_PER_REAL_HOUR * 1.25;
+      const lo = baseKmPerRealHour * 0.75;
+      const hi = baseKmPerRealHour * 1.25;
       const clamped = Math.min(hi, Math.max(lo, measured));
-      kmPerRealHour = CAL_KM_PER_REAL_HOUR * (1 - blend) + clamped * blend;
+      kmPerRealHour = baseKmPerRealHour * (1 - blend) + clamped * blend;
     }
 
     const targetRemainSec = (sample.restKm / kmPerRealHour) * 3600;

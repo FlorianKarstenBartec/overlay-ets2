@@ -1,0 +1,134 @@
+:root {
+  --ink: #d8d2c4;
+  --muted: #8a8478;
+  --line: rgba(216, 210, 196, 0.18);
+  --panel: #161814;
+  --accent: #c9a227;
+  --warn: #c45c2a;
+  --font-ui: "Archivo Narrow", "Arial Narrow", sans-serif;
+  --font-num: "JetBrains Mono", "Consolas", monospace;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: linear-gradient(180deg, #22241f, var(--panel));
+  color: var(--ink);
+  font-family: var(--font-ui);
+}
+
+.panel {
+  box-sizing: border-box;
+  height: 100%;
+  padding: 24px 26px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow: hidden;
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: 650;
+  letter-spacing: 0.02em;
+}
+
+.lead {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field input {
+  font-family: var(--font-num);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--accent);
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  outline: none;
+}
+
+.field input:focus {
+  border-color: rgba(201, 162, 39, 0.55);
+}
+
+.check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.check input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.35;
+}
+
+.error {
+  font-size: 13px;
+  color: var(--warn);
+}
+
+.actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.btn {
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border: 1px solid rgba(201, 162, 39, 0.55);
+  background: var(--accent);
+  color: #1a170f;
+  padding: 9px 14px;
+  cursor: pointer;
+}
+
+.btn--ghost {
+  background: transparent;
+  color: var(--ink);
+  border-color: var(--line);
+}
+
+.btn:hover {
+  filter: brightness(1.05);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}

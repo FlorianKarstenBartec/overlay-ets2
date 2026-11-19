@@ -23,7 +23,7 @@ Oben links sitzt die Tour-Anzeige. Unten rechts bleibt der normale ETS2-Route-Ad
 | Balken | Gefahren / Gesamt-Navi-km |
 | Flaggen | Start- und Zielland unter dem Balken |
 
-`F9` blendet das Tour-HUD ein und aus. Im Infobereich sitzt ein LKW-Tray-Icon. Links-Klick schaltet das Overlay, Rechts-Klick öffnet das Menü mit Beenden.
+`F9` blendet das Tour-HUD ein und aus. Im Infobereich sitzt ein LKW-Tray-Icon. Links-Klick schaltet das Overlay, Rechts-Klick öffnet das Menü.
 
 ## Uhr
 
@@ -36,10 +36,10 @@ Kleine Realzeit-Uhr oben rechts. Sie bleibt sichtbar, solange das Spiel verbunde
 Die Ingame-Zeitskala fließt nicht in die Rechnung ein.
 
 ```
-Dauer = Rest-km / (Spiel-km pro Realzeit-Stunde)
+Dauer = Rest-km / (Durchschnitt km/h)
 ```
 
-Ausgangswert sind etwa 1000 Spiel-km in 60 Realminuten. Kurze Stadt- oder Autobahn-Stücke reißen die Schätzung nicht um. Nach genug Strecke und Zeit auf dem Auftrag mischt sich ein Tour-Schnitt langsam ein.
+Den Durchschnitt legst du beim ersten Start fest (Standard 90 km/h) und kannst ihn später unter Tray → **Einstellungen…** ändern. Kurze Stadt- oder Autobahn-Stücke reißen die Schätzung nicht um. Nach genug Strecke und Zeit auf dem Auftrag mischt sich ein Tour-Schnitt langsam ein.
 
 Stehst du, bleibt die Dauer stehen. Die Ankunftszeit wandert nach hinten.
 
@@ -58,13 +58,25 @@ Spätere Umwege, falsch Abbiegen oder entfernte Wegpunkte folgen dem aktuellen N
 ## Voraussetzungen
 
 - Windows
-- Node.js 18 oder neuer
 - FPH Telemetry (kommt mit FPH SpedV) und Antwort auf `http://127.0.0.1:25552/api/ets2/telemetry`
 - Euro Truck Simulator 2 (TruckersMP funktioniert genauso)
 
 Andere lokale Server mit demselben JSON-Format gehen über `ETS2_TELEMETRY_URL`.
 
-## Installation und Start
+## Installation (Spieler)
+
+Kein Node.js nötig.
+
+1. Unter [Releases](https://github.com/FlorianKarstenBartec/overlay-ets2/releases) die aktuelle `Setup.exe` laden
+2. Installer ausführen (Desktop- und Startmenü-Verknüpfung)
+3. Overlay starten – beim ersten Mal Durchschnitts-km/h setzen
+4. FPH/SpedV laufen lassen, dann ETS2/TMP starten
+
+Läuft das Spiel, aber die Telemetry fehlt, zeigt das Tour-Fenster: **Keine Telemetry – FPH/SpedV starten**.
+
+## Entwicklung
+
+Node.js 18 oder neuer:
 
 ```bash
 git clone https://github.com/FlorianKarstenBartec/overlay-ets2.git
@@ -75,31 +87,42 @@ npm start
 
 Nach `npm install` reicht auch ein Doppelklick auf `start.bat`.
 
+Installer bauen:
+
+```bash
+npm run dist
+```
+
+Die Setup.exe liegt danach unter `dist/`.
+
 ## Bedienung
 
 | Eingabe | Aktion |
 | --- | --- |
 | F9 | Tour-HUD ein oder aus |
 | Tray links | Tour-HUD ein oder aus |
-| Tray rechts | Menü, Beenden |
+| Tray rechts | Einstellungen, Mit Windows starten, Beenden |
 
-Das Tour-HUD blendet aus, wenn das Spiel pausiert ist und kein Auftrag läuft, und wenn keine Telemetry kommt. Die Uhr bleibt bei verbundenem Spiel.
+Das Tour-HUD blendet aus, wenn das Spiel pausiert ist und kein Auftrag läuft, und wenn weder Spiel noch Telemetry da sind. Die Uhr bleibt bei verbundenem Spiel.
 
 ## Konfiguration
+
+Einstellungen liegen unter `%AppData%/overlay-ets2/settings.json`.
 
 | Umgebungsvariable | Standard | Bedeutung |
 | --- | --- | --- |
 | `ETS2_TELEMETRY_URL` | `http://127.0.0.1:25552/api/ets2/telemetry` | Telemetry-URL |
 | `ETS2_POLL_MS` | `150` | Abfrageintervall in ms |
-| `ETS2_SEED_SPEED` | `95` | Startwert für den Durchsatz |
+| `ETS2_SEED_SPEED` | `90` | Fallback-Durchschnitt nur ohne settings.json |
 
 ## Projektstruktur
 
 ```
-main.js              Fenster, Tray, F9, IPC
+main.js              Fenster, Tray, Settings, Autostart, IPC
 preload.js           Bridge in den Renderer
 renderer/
   app.js             HUD-Zustand, Balken, Ankunftsbanner
+  settings.html      Einstellungen (km/h, Autostart)
   telemetry.js       Mapping vom FPH-JSON
   eta.js             Dauer und Ankunft in Realzeit
   ferry.js           Fähren-Lock und ETA-Rest

@@ -1,5 +1,7 @@
 node_modules/
 dist/
+dist_electron/
+out/
 *.log
 .DS_Store
 Thumbs.db
@@ -10,3 +12,5 @@ _city_extract/
 .idea/
 .vscode/
 *.local
+*.blockmap
+latest.yml

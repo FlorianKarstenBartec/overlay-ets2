@@ -1,11 +1,13 @@
 {
   "name": "overlay-ets2",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "Always-on-top ETS2/TMP tour HUD using local FPH telemetry",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron ."
+    "dev": "electron .",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder --win nsis"
   },
   "repository": {
     "type": "git",
@@ -20,6 +22,35 @@
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
-    "electron": "^39.2.0"
+    "electron": "^39.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.florian.overlay-ets2",
+    "productName": "Overlay ETS2",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "icon.png",
+      "renderer/**/*"
+    ],
+    "win": {
+      "icon": "build/icon.png",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Overlay ETS2"
+    }
   }
 }
