@@ -6,7 +6,7 @@ Es liest denselben lokalen FPH-Telemetry-Feed wie SpedV unter `127.0.0.1:25552`.
 
 ![Overlay im Spiel](docs/screenshots/ingame.png)
 
-Oben links sitzt die Tour-Anzeige. Unten rechts bleibt der normale ETS2-Route-Advisor. So hast du Ziel, Rest und Ankunft dauerhaft im Blick, ohne Menüs zu öffnen.
+Oben links sitzt die Tour-Anzeige. Unten rechts bleibt der normale ETS2-Route-Advisor. So hast du Ziel, Rest und Ankunft dauerhaft im Blick.
 
 ## Tour-HUD
 
