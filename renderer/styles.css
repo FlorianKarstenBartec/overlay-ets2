@@ -99,6 +99,13 @@ body {
   text-overflow: ellipsis;
 }
 
+.hud__idle-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
 .hud__idle {
   font-size: 16px;
   font-weight: 650;
@@ -106,47 +113,36 @@ body {
   letter-spacing: 0.01em;
 }
 
-.hud__status {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.hud__status-title {
-  font-size: 15px;
-  font-weight: 650;
-  color: var(--warn);
-  letter-spacing: 0.01em;
-}
-
-.hud__status-detail {
+.hud__idle-detail {
   font-size: 12px;
   color: var(--muted);
   letter-spacing: 0.02em;
 }
 
+.hud--idle.hud--missing .hud__idle {
+  color: var(--warn);
+}
+
 .hud--idle .hud__active,
-.hud--idle .progress,
-.hud--hint .hud__active,
-.hud--hint .progress,
-.hud--hint .cruise {
+.hud--idle .progress {
   display: none;
 }
 
-.hud--idle,
-.hud--hint {
+.hud--idle.hud--missing .cruise {
+  display: none;
+}
+
+.hud--idle {
   gap: 10px;
   padding: 12px 14px 10px;
 }
 
-.hud--idle .cruise {
+.hud--idle:not(.hud--missing) .cruise {
   border-top: 0;
   padding-top: 2px;
 }
 
-.hud--idle .hud__foot,
-.hud--hint .hud__foot {
+.hud--idle .hud__foot {
   margin-top: auto;
 }
 

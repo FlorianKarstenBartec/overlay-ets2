@@ -7,10 +7,9 @@ import { mapTelemetry } from "./telemetry.js";
 const els = {
   hud: document.getElementById("hud"),
   activeBlock: document.getElementById("activeBlock"),
+  idleBlock: document.getElementById("idleBlock"),
   idleTitle: document.getElementById("idleTitle"),
-  statusBlock: document.getElementById("statusBlock"),
-  statusTitle: document.getElementById("statusTitle"),
-  statusDetail: document.getElementById("statusDetail"),
+  idleDetail: document.getElementById("idleDetail"),
   tour: document.getElementById("tour"),
   company: document.getElementById("company"),
   rest: document.getElementById("rest"),
@@ -50,6 +49,11 @@ let arrivalHideTimer = null;
 let hudMode = "active";
 let tourAutoVisible = true;
 let gamePresent = true;
+/** Verhindert, dass langsame tasklist-/Fetch-Callbacks einen neueren Tick überschreiben */
+let tickSeq = 0;
+/** Telemetry ok → Idle/Tour; Fail → invertierter Idle-Text „Keine Telemetry“ */
+let telemetryOk = false;
+let failStreak = 0;
 
 function setTourAutoVisible(visible) {
   if (visible === tourAutoVisible) return;
@@ -102,23 +106,38 @@ function setTourHtml(mapped) {
     : "";
 }
 
-function setHudLayout(mode) {
-  const nextMode = mode === "idle" || mode === "hint" ? mode : "active";
+function setHudLayout(mode, { missing = false, title = "Kein aktiver Auftrag", detail = "" } = {}) {
+  const nextMode = mode === "idle" ? "idle" : "active";
   els.hud.classList.toggle("hud--idle", nextMode === "idle");
-  els.hud.classList.toggle("hud--hint", nextMode === "hint");
-  els.idleTitle.hidden = nextMode !== "idle";
-  els.statusBlock.hidden = nextMode !== "hint";
+  els.hud.classList.toggle("hud--missing", nextMode === "idle" && missing);
+  els.idleBlock.hidden = nextMode !== "idle";
   els.activeBlock.hidden = nextMode !== "active";
   els.progress.hidden = nextMode !== "active";
 
-  if (nextMode !== hudMode) {
-    hudMode = nextMode;
-    window.hudBridge?.setHudMode?.(nextMode);
+  if (nextMode === "idle") {
+    els.idleTitle.textContent = title;
+    els.idleDetail.textContent = detail;
+    els.idleDetail.hidden = !detail;
+  }
+
+  // missing und idle teilen dieselbe kompakte Fenstergröße
+  const sizeMode = nextMode === "idle" ? (missing ? "hint" : "idle") : "active";
+  if (sizeMode !== hudMode) {
+    hudMode = sizeMode;
+    window.hudBridge?.setHudMode?.(sizeMode);
   }
 }
 
 function setIdleMode(idle) {
-  setHudLayout(idle ? "idle" : "active");
+  if (idle) {
+    setHudLayout("idle", {
+      missing: false,
+      title: "Kein aktiver Auftrag",
+      detail: "",
+    });
+  } else {
+    setHudLayout("active");
+  }
 }
 
 function applySeedSpeed(seedSpeedKmh) {
@@ -344,17 +363,18 @@ function positionTruck(pct) {
 
 function setOffline() {
   els.hud.classList.add("hud--offline");
-  els.hud.classList.remove("hud--ok", "hud--arrived", "hud--idle", "hud--hint");
-  els.statusBlock.hidden = true;
-  els.idleTitle.hidden = true;
+  els.hud.classList.remove("hud--ok", "hud--arrived", "hud--idle", "hud--missing");
+  els.idleBlock.hidden = true;
   resetProgress();
   hideArrivalBanner();
   setTourAutoVisible(true);
   setGamePresent(false);
 }
 
-async function setTelemetryMissing() {
+/** Invertierter Idle-Zustand: kein FPH → gleicher Slot wie „Kein aktiver Auftrag“ */
+async function showNoTelemetry(seq) {
   const gameRunning = Boolean(await window.hudBridge?.isGameRunning?.());
+  if (seq != null && seq !== tickSeq) return;
   if (!gameRunning) {
     setOffline();
     return;
@@ -362,11 +382,13 @@ async function setTelemetryMissing() {
 
   els.hud.classList.add("hud--ok");
   els.hud.classList.remove("hud--offline", "hud--arrived");
-  els.statusTitle.textContent = "Keine Telemetry";
-  els.statusDetail.textContent = "FPH/SpedV starten";
   resetProgress();
   hideArrivalBanner();
-  setHudLayout("hint");
+  setHudLayout("idle", {
+    missing: true,
+    title: "Keine Telemetry",
+    detail: "FPH/SpedV starten",
+  });
   setTourAutoVisible(true);
   setGamePresent(true);
 }
@@ -395,15 +417,15 @@ function renderCruise(mapped) {
 }
 
 async function render(mapped, eta, route = {}) {
+  // FPH antwortet, Spiel noch nicht hooked → HUD aus (kein „FPH starten“)
   if (!mapped.connected) {
-    await setTelemetryMissing();
+    setOffline();
     return;
   }
 
   setGamePresent(true);
-  els.hud.classList.remove("hud--offline", "hud--hint");
+  els.hud.classList.remove("hud--offline");
   els.hud.classList.add("hud--ok");
-  els.statusBlock.hidden = true;
 
   if (!eta.hasJob) {
     setIdleMode(true);
@@ -435,8 +457,12 @@ async function render(mapped, eta, route = {}) {
 }
 
 async function tick() {
+  const seq = ++tickSeq;
   try {
     const raw = await window.hudBridge.fetchTelemetry(config.telemetryUrl);
+    if (seq !== tickSeq) return;
+    failStreak = 0;
+    telemetryOk = true;
     const mapped = mapTelemetry(raw);
     if (lastCruiseKmh != null && !mapped.cruiseSpeedKmh) {
       mapped.cruiseSpeedKmh = lastCruiseKmh;
@@ -449,7 +475,12 @@ async function tick() {
     });
     await render(mapped, eta, route);
   } catch {
-    await setTelemetryMissing();
+    if (seq !== tickSeq) return;
+    failStreak += 1;
+    // Kurzzeitige Aussetzer nicht sofort als „FPH aus“ zeigen
+    if (telemetryOk && failStreak < 4) return;
+    telemetryOk = false;
+    await showNoTelemetry(seq);
   }
 }
 

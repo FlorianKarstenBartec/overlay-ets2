@@ -17,7 +17,14 @@ export function mapTelemetry(raw) {
   const job = root?.job ?? {};
   const cargo = job?.cargo ?? {};
 
-  const connected = Boolean(game.connected || game.dataAvailable);
+  // Manche FPH-Builds setzen die Flags spät/kurz auf false, obwohl Truck-Daten schon live sind
+  const connected = Boolean(
+    game.connected ||
+      game.dataAvailable ||
+      truck.engineOn ||
+      truck.electricOn ||
+      (Number.isFinite(truck.odometer) && truck.odometer > 0)
+  );
   const dest = (job.destinationCity || "").trim();
   const source = (job.sourceCity || "").trim();
   const freight = (cargo.name || "").trim();

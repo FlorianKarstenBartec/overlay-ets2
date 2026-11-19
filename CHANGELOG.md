@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.3.1
+
+- Telemetry-Hinweis hängt am gleichen Idle-Slot wie „Kein aktiver Auftrag“ (invertiert bei fehlendem FPH)
+- Kurze Telemetry-Aussetzer lösen nicht mehr sofort die FPH-Meldung aus
+
 ## 1.3.0
 
 - Windows NSIS installer (Setup.exe) – no Node.js needed for players
