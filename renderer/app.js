@@ -234,6 +234,12 @@ function smoothProgressPct(targetPct) {
     return targetPct;
   }
 
+  // Navi springt nach Jobstart von ~0 auf volle Strecke → nicht von rechts nach links smoothen
+  if (delta < -8) {
+    progressSmoothPct = targetPct;
+    return targetPct;
+  }
+
   const maxStep = 0.9; // ~6 %/s bei 150 ms Poll
   progressSmoothPct += Math.sign(delta) * Math.min(Math.abs(delta), maxStep);
   return progressSmoothPct;
@@ -272,28 +278,42 @@ function syncProgressTotal(navRestKm, odometerKm) {
   }
 }
 
+const MIN_NAV_READY_KM = 2;
+
+function renderProgressEmpty(restLabel = "--") {
+  els.progress.classList.add("progress--empty");
+  els.progressKm.textContent = "0 / -- km";
+  els.progressFill.style.width = "0%";
+  els.progressTruck.style.left = "0%";
+  els.progressTruck.style.transform = "translate(0, -50%)";
+  els.flagStart.hidden = true;
+  els.flagEnd.hidden = true;
+  els.rest.textContent = restLabel;
+}
+
 function renderProgress(mapped, navRestKm) {
-  if (!mapped?.hasJob || navRestKm == null || !Number.isFinite(navRestKm)) {
-    els.progress.classList.add("progress--empty");
-    els.progressKm.textContent = "0 / -- km";
-    els.progressFill.style.width = "0%";
-    els.progressTruck.style.left = "0%";
-    els.progressTruck.style.transform = "translate(0, -50%)";
-    els.flagStart.hidden = true;
-    els.flagEnd.hidden = true;
+  // Navi kurz nach Annahme oft ~0 km → sonst startet der Balken rechts und smooth nach links
+  if (
+    !mapped?.hasJob ||
+    navRestKm == null ||
+    !Number.isFinite(navRestKm) ||
+    navRestKm < MIN_NAV_READY_KM
+  ) {
+    renderProgressEmpty("--");
     return;
   }
 
   if (mapped.jobKey !== progressJobKey) {
     progressJobKey = mapped.jobKey;
-    progressSmoothPct = null;
+    progressSmoothPct = 0;
     progressLastNavKm = null;
     progressLastOdo = null;
     const saved = loadRouteState();
     if (
       saved?.jobKey === mapped.jobKey &&
       Number.isFinite(saved.navTotalKm) &&
-      Number.isFinite(saved.lastNavKm)
+      Number.isFinite(saved.lastNavKm) &&
+      saved.navTotalKm >= MIN_NAV_READY_KM
     ) {
       progressTotalKm = saved.navTotalKm;
       progressLastNavKm = saved.lastNavKm;
@@ -427,7 +447,8 @@ async function render(mapped, eta, route = {}) {
   els.hud.classList.remove("hud--offline");
   els.hud.classList.add("hud--ok");
 
-  if (!eta.hasJob) {
+  // Idle nur ohne Auftrag – nicht wenn Navi/Rest noch fehlt
+  if (!mapped.hasJob) {
     setIdleMode(true);
     renderCruise(mapped);
     resetProgress();
@@ -439,17 +460,29 @@ async function render(mapped, eta, route = {}) {
     return;
   }
 
-  // Ziel-erreicht über Navi-Rest
-  const arrived = updateArrival(mapped, route.navRestKm);
+  setIdleMode(false);
+  setTourHtml(mapped);
   renderCruise(mapped);
 
+  // Tour schon sichtbar, Navi noch nicht stabil
+  if (!eta.restReady) {
+    hideArrivalBanner();
+    els.hud.classList.remove("hud--arrived");
+    els.dauer.textContent = "--:--";
+    els.eta.textContent = "--:--";
+    renderProgressEmpty("--");
+    setTourAutoVisible(true);
+    return;
+  }
+
+  // Ziel-erreicht über Navi-Rest
+  const arrived = updateArrival(mapped, route.navRestKm);
   if (arrived) {
     setTourAutoVisible(!mapped.paused);
     return;
   }
 
   setTourAutoVisible(true);
-  setTourHtml(mapped);
   // Dauer/Ankunft = Navi (minus echte Fähre); Rest setzt renderProgress (gleicher Wert wie Balken)
   els.dauer.textContent = formatDuration(eta.remainSec);
   els.eta.textContent = formatEtaClock(eta.etaMs);

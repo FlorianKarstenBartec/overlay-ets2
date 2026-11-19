@@ -295,12 +295,53 @@ function createTray() {
   tray.on("click", toggleOverlay);
 }
 
+/** FPH-JSON ist riesig – nur die HUD-Felder durch IPC schicken */
+function slimTelemetry(raw) {
+  const root = raw?.ets2 ?? raw ?? {};
+  const game = root.game ?? {};
+  const truck = root.truck ?? {};
+  const job = root.job ?? {};
+  const cargo = job.cargo ?? {};
+  return {
+    ets2: {
+      game: {
+        connected: game.connected,
+        dataAvailable: game.dataAvailable,
+        paused: game.paused,
+      },
+      truck: {
+        speed: truck.speed,
+        cruiseControlOn: truck.cruiseControlOn,
+        cruiseControlSpeed: truck.cruiseControlSpeed,
+        odometer: truck.odometer,
+        navigationEstimatedDistance: truck.navigationEstimatedDistance,
+        engineOn: truck.engineOn,
+        electricOn: truck.electricOn,
+      },
+      job: {
+        sourceCity: job.sourceCity,
+        sourceCityID: job.sourceCityID,
+        destinationCity: job.destinationCity,
+        destinationCityID: job.destinationCityID,
+        destinationCompany: job.destinationCompany,
+        cargo: {
+          id: cargo.id,
+          name: cargo.name,
+          loaded: cargo.loaded,
+          totalMass: cargo.totalMass,
+          plannedDistanceKM: cargo.plannedDistanceKM,
+        },
+      },
+    },
+  };
+}
+
 async function fetchTelemetryJson(url) {
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Telemetry HTTP ${res.status}`);
   }
-  return res.json();
+  return slimTelemetry(await res.json());
 }
 
 function isGameRunning() {

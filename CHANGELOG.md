@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.4.0
+
+- Idle-Text „Kein aktiver Auftrag“ bleibt nicht mehr über einer aktiven Tour stehen (CSS `hidden`-Fix)
+- Aktiver Auftrag zeigt die Tour auch, bevor der Navi-Rest stabil ist (kein falsches Idle mehr)
+- Progress-Balken startet links bei Jobannahme (kein Rechts-nach-links-Slide bei 0 km Navi)
+- ETA springt mit, wenn die Navi-Distanz nach Jobannahme hochgeht
+- Telemetry IPC nur noch mit den HUD-Feldern (schlanker)
+
 ## 1.3.1
 
 - Telemetry-Hinweis hängt am gleichen Idle-Slot wie „Kein aktiver Auftrag“ (invertiert bei fehlendem FPH)
